@@ -4,9 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 ?>
 <tr class="cursor-pointer" id="r-script-url-<?php echo $script['id']; ?>">
-    <td><?php echo $survey['id']; ?></td>
-    <td><?php echo $survey['generated_id']; ?></td>
-    <td><?php echo $survey['name']; ?></td>
-    <td><?php echo $survey['created_at']; ?></td>
-    <td><?php echo $survey['updated_at']; ?></td>
+    <td><?php echo $script['id']; ?></td>
+    <td><?php echo $script['generated_id']; ?></td>
+    <td><?php echo $script['name']; ?></td>
+    <td><?php echo $script['created_at']; ?></td>
+    <td><?php echo $script['updated_at']; ?></td>
 </tr>

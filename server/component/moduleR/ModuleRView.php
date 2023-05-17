@@ -126,8 +126,11 @@ class ModuleRView extends BaseView
     public function get_js_includes($local = array())
     {
         if (empty($local)) {
-            $local = array(
-            );
+            if (DEBUG) {
+                $local = array(__DIR__ . "/js/rserve.js");
+            } else {
+                $local = array(__DIR__ . "/../../../../../rserve/js/ext/rserve.min.js?v=" . rtrim(shell_exec("git describe --tags")));
+            }
         }
         return parent::get_js_includes($local);
     }
