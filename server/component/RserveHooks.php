@@ -6,12 +6,8 @@
 <?php
 require_once __DIR__ . "/../../../../component/BaseHooks.php";
 require_once __DIR__ . "/../../../../component/style/BaseStyleComponent.php";
-require_once __DIR__ . '/../service/ext/rserve/vendor/autoload.php';
+require_once __DIR__ . "/moduleR/ModuleRModel.php";
 
-
-use Sentiweb\Rserve\Connection;
-use Sentiweb\Rserve\Parser\NativeArray;
-use Sentiweb\Rserve\Evaluator;
 
 /**
  * The class to define the hooks for the plugin.
@@ -19,6 +15,11 @@ use Sentiweb\Rserve\Evaluator;
 class RserveHooks extends BaseHooks
 {
     /* Constructors ***********************************************************/
+
+    /**
+     * The moduleR where the R script can be executed
+     */
+    private $moduleR;
 
     /**
      * The constructor creates an instance of the hooks.
@@ -30,6 +31,7 @@ class RserveHooks extends BaseHooks
     public function __construct($services, $params = array())
     {
         parent::__construct($services, $params);
+        $this->moduleR = new ModuleRModel($this->services);
     }
 
     /* Private Methods *********************************************************/
@@ -45,13 +47,11 @@ class RserveHooks extends BaseHooks
     private function execute_r_script($args)
     {
         // Connect to the Rserve server
-        $connection = new Connection('localhost', 6311);
         $r_script = 'myString <- "{{question1}}"; stringLength <- nchar(myString);result <- list(stringLength = stringLength);result';
         $form_values = $this->user_input->get_form_values($args['task_info']['config']['form_data']['form_fields']);
         $r_script = $this->db->replace_calced_values($r_script, $form_values);
-        $result = $connection->evalString($r_script);
+        $result = $this->moduleR->execute_r_script($r_script);
         // var_dump($result);
-        $connection->close();
         return true;
     }
 
@@ -66,40 +66,40 @@ class RserveHooks extends BaseHooks
     public function test()
     {
         return;
-        // Connect to the Rserve server
-        $connection = new Connection('localhost', 6311);
-        $result = $connection->evalString('sum <- 5 + 10; sum');
+        // // Connect to the Rserve server
+        // $connection = new Connection('localhost', 6311);
+        // $result = $connection->evalString('sum <- 5 + 10; sum');
+        // // var_dump($result);
+        // $connection->close();
+
+        // // Connect to the Rserve server
+        // $connection = new Connection('localhost', 6311);
+        // $connection->evalString("library(dplyr)");
+        // $connection->evalString("data <- iris %>% filter(Species == 'setosa') %>% select(Sepal.Length, Sepal.Width)");
+        // $result = $connection->evalString("data");
+        // // var_dump($result);
+        // $connection->close();
+
+        // // Connect to the Rserve server
+        // $connection = new Connection('localhost', 6311);
+        // $r_string = 'data <- data.frame(Name = c("John", "Jane", "Mark", "Emily"), Age = c(25, 30, 35, 40), Gender = c("Male", "Female", "Male", "Female"), Salary = c(50000, 60000, 70000, 80000), stringsAsFactors = FALSE);filtered_data <- subset(data, Age > 30);sorted_data <- data[order(data$Salary, decreasing = TRUE), ];selected_data <- data[, c("Name", "Age", "Salary")];list(filtered_data, sorted_data, selected_data)';
+        // $result = $connection->evalString($r_string);
         // var_dump($result);
-        $connection->close();
+        // $connection->close();
 
-        // Connect to the Rserve server
-        $connection = new Connection('localhost', 6311);
-        $connection->evalString("library(dplyr)");
-        $connection->evalString("data <- iris %>% filter(Species == 'setosa') %>% select(Sepal.Length, Sepal.Width)");
-        $result = $connection->evalString("data");
-        // var_dump($result);
-        $connection->close();
-
-        // Connect to the Rserve server
-        $connection = new Connection('localhost', 6311);
-        $r_string = 'data <- data.frame(Name = c("John", "Jane", "Mark", "Emily"), Age = c(25, 30, 35, 40), Gender = c("Male", "Female", "Male", "Female"), Salary = c(50000, 60000, 70000, 80000), stringsAsFactors = FALSE);filtered_data <- subset(data, Age > 30);sorted_data <- data[order(data$Salary, decreasing = TRUE), ];selected_data <- data[, c("Name", "Age", "Salary")];list(filtered_data, sorted_data, selected_data)';
-        $result = $connection->evalString($r_string);
-        var_dump($result);
-        $connection->close();
-
-        // Connect to the Rserve server
-        $connection = new Connection('localhost', 6311);
-        // $connection->setAsync(true);
-        $r_string = 'require(udpipe);ud_model <- udpipe_download_model(language = "german");ud_model <- udpipe_load_model(ud_model$file_model);ud_model';
-        $res = $connection->evalString($r_string);
-        // $res = $connection->getResults();
-        var_dump($res);
-        // $connection->evalString("ud_model <- udpipe_download_model(language = 'german')");
-        // $connection->evalString('ud_model <- udpipe_load_model(ud_model$file_model)');
-        //$connection->evalString('x <- udpipe_annotate(ud_model, x = nlp$V1, doc_id = nlp$V1)');
-        //$connection->evalString('x <- as.data.frame(x)');
-        // $result = $connection->evalString('ud_model');
-        $connection->close();
+        // // Connect to the Rserve server
+        // $connection = new Connection('localhost', 6311);
+        // // $connection->setAsync(true);
+        // $r_string = 'require(udpipe);ud_model <- udpipe_download_model(language = "german");ud_model <- udpipe_load_model(ud_model$file_model);ud_model';
+        // $res = $connection->evalString($r_string);
+        // // $res = $connection->getResults();
+        // var_dump($res);
+        // // $connection->evalString("ud_model <- udpipe_download_model(language = 'german')");
+        // // $connection->evalString('ud_model <- udpipe_load_model(ud_model$file_model)');
+        // //$connection->evalString('x <- udpipe_annotate(ud_model, x = nlp$V1, doc_id = nlp$V1)');
+        // //$connection->evalString('x <- as.data.frame(x)');
+        // // $result = $connection->evalString('ud_model');
+        // $connection->close();
     }
 
     /**

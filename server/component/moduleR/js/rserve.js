@@ -2,6 +2,7 @@ $(document).ready(function () {
     initRScriptsTable();
     initDeleteRScript();
     initREditor();
+    initTestScriptBtn();
 });
 
 function initDeleteRScript() {
@@ -57,9 +58,9 @@ function initRScriptsTable() {
 }
 
 function initREditor() {
-
-    // load the monaco editor for css fields
+    // load the monaco editor for R script
     if ($('.r-script').length > 0) {
+        $('.r-script-value textarea').addClass('d-none');
         var rScript = $('.r-script')[0];
         require.config({ paths: { vs: BASE_PATH + '/js/ext/vs' } });
         require(['vs/editor/editor.main'], function () {
@@ -78,4 +79,41 @@ function initREditor() {
             });
         });
     }
+}
+
+function initTestScriptBtn() {
+    $("#r-script-test-btn").off('click').on('click', (e) => {
+        e.preventDefault();
+        test_r_script();
+    });
+}
+
+function test_r_script() {
+    console.log('Test this:', $('.r-script-value textarea').val());
+    var script_generated_id = $('input[name="generated_id"]').val();
+    $.post(
+        window.location,
+        {
+            mode: "test_script",
+            script: $('.r-script-value textarea').val()
+        },
+        function (data) {
+            console.log(JSON.stringify(data, null, 3) );
+            if (data.result) {
+                $.alert({
+                    title: 'Successful execution - R Script: ' + script_generated_id,
+                    type: "green",
+                    content: "<p class='pre-wrap'>" + JSON.stringify(data, null, 3) + "</p>"
+                });
+            }
+            else {
+                $.alert({
+                    title: 'Error in R Script: ' + script_generated_id,
+                    type: "red",
+                    content: JSON.stringify(data, null, 3),
+                });
+            }
+        },
+        "json"
+    );
 }

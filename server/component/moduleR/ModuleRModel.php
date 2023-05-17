@@ -5,6 +5,12 @@
 ?>
 <?php
 require_once __DIR__ . "/../../../../../component/BaseModel.php";
+require_once __DIR__ . '/../../service/ext/rserve/vendor/autoload.php';
+
+use Sentiweb\Rserve\Connection;
+use Sentiweb\Rserve\Parser\NativeArray;
+use Sentiweb\Rserve\Evaluator;
+
 /**
  * This class is used to prepare all data related to the cmsPreference component such
  * that the data can easily be displayed in the view of the component.
@@ -121,5 +127,22 @@ class ModuleRModel extends BaseModel
     public function delete_script($sid)
     {
         return $this->db->remove_by_ids(RSERVE_TABLE_R_SCRIPTS, array("id" => $sid));
+    }
+
+    /**
+     * Execute R script
+     * @param string $script
+     * The source code of R
+     * @return object
+     * Return the result, object with all variables and their values
+     */
+    public function execute_r_script($script)
+    {
+        // Connect to the Rserve server
+        $connection = new Connection('localhost', 6311);
+        $result = $connection->evalString($script);
+        // var_dump($result);
+        $connection->close();
+        return $result;
     }
 }

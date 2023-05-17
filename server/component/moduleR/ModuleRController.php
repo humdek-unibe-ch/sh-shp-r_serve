@@ -35,9 +35,25 @@ class ModuleRController extends BaseController
                 $url = $this->model->get_link_url("moduleRMode", array("mode" => UPDATE, "sid" => $sid));
                 header('Location: ' . $url);
             }
-        } else if ($mode === UPDATE && $sid > 0 && isset($_POST['name'])&& isset($_POST['script'])) {
-            $this->model->update_script($sid, $_POST['name'], $_POST['script']);
-            header('Location: ' . $this->model->get_link_url("moduleR"));
+        } else if ($mode === UPDATE && $sid > 0 && isset($_POST['name']) && isset($_POST['script'])) {
+            $res = $this->model->update_script($sid, $_POST['name'], $_POST['script']);
+            if ($res) {
+                $this->success = true;
+                $this->success_msgs[] = "[" . date("H:i:s") . "] Successfully updated script: " . $_POST['name'];
+            } else {
+                $this->fail = true;
+                $this->error_msgs[] = "[" . date("H:i:s") . "] Failed to update script: " . $_POST['name'];
+            }
+        } else if (
+            $mode === UPDATE && $sid > 0 && isset($_POST['mode']) && $_POST['mode'] == 'test_script'
+            && isset($_POST['script'])
+        ) {
+            $result = $this->model->execute_r_script($_POST['script']);
+            echo json_encode(array(
+                "result" => $result ? true : false,
+                "data" => $result
+            ));
+            exit();
         } else if ($mode === DELETE && $sid > 0) {
             $del_res = $this->model->delete_script($sid);
             if ($del_res) {

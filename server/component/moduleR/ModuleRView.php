@@ -72,6 +72,13 @@ class ModuleRView extends BaseView
                                     "label" => "Back to All R Scripts",
                                     "url" => $this->model->get_link_url("moduleR"),
                                     "type" => "secondary",
+                                )),
+                                new BaseStyleComponent("button", array(
+                                    "label" => "Test script",
+                                    "id" => "r-script-test-btn",
+                                    "url" => "#",
+                                    "type" => "primary",
+                                    "css" => "ml-3"
                                 ))
                             )
                         )),
@@ -114,7 +121,7 @@ class ModuleRView extends BaseView
                             new BaseStyleComponent("textarea", array(
                                 "label" => "R Script",
                                 "name" => "script",
-                                "css" => "r-script-value d-none",
+                                "css" => "r-script-value m-0",
                                 "value" => isset($this->script['script']) ? $this->script['script'] : '',
                                 "placeholder" => "Write R code",
                             )),
@@ -178,7 +185,7 @@ class ModuleRView extends BaseView
     {
         if (empty($local)) {
             if (DEBUG) {
-                $local = array();
+                $local = array(__DIR__ . "/css/rserve.css");
             } else {
                 $local = array(__DIR__ . "/../../../rserve/css/ext/rserve.min.css?v=" . rtrim(shell_exec("git describe --tags")));
             }
