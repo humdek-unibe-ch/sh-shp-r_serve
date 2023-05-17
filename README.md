@@ -12,5 +12,5 @@ This is a SelfHelpPlugin that is used for [Rserve](https://www.rforge.net/Rserve
 
 # Requirements
 
- - SelfHelp v6.2.0+
+ - SelfHelp v6.2.1+
  - Rserve -server
