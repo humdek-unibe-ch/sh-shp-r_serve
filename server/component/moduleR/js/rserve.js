@@ -1,6 +1,7 @@
 $(document).ready(function () {
     initRScriptsTable();
     initDeleteRScript();
+    initREditor();
 });
 
 function initDeleteRScript() {
@@ -11,21 +12,22 @@ function initDeleteRScript() {
 }
 
 function deleteScript() {
-    var survey_name = JSON.parse(creator.text)['title'];
-    if (survey_name) {
+    var script_generated_id = $('input[name="generated_id"]').val();
+    console.log(script_generated_id);
+    if (script_generated_id) {
         $.confirm({
-            title: 'Delete survey: <code>' + survey_name + "</code>",
+            title: 'Delete script: <code>' + script_generated_id + "</code>",
             type: "red",
-            content: '<p>This will delete the survey <code>' + survey_name + '</code> and all the data collected by this survey.</p><p>You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the name of the survey.</p> <input id="deleteValue" type="text" class="form-control" >',
+            content: '<p>This will delete the script <code>' + script_generated_id + '</code> and all the jobs related to this script will not work.</p><p>You must be absolutely certain that this is what you want. This operation cannot be undone! To verify, enter the generated id of the script.</p> <input id="deleteValue" type="text" class="form-control" >',
             buttons: {
                 confirm: function () {
-                    if ($("#deleteValue").val() == survey_name) {
-                        location.href = $("#survey-js-delete-btn").attr('href');
+                    if ($("#deleteValue").val() == script_generated_id) {
+                        location.href = $("#r-script-delete-btn").attr('href');
                     } else {
                         $.alert({
-                            title: 'Delete Survey: ' + survey_name,
+                            title: 'Delete Script: ' + script_generated_id,
                             type: "red",
-                            content: 'Failed to delete the page: The verification text does not match with the survey name.',
+                            content: 'Failed to delete the script: The verification text does not match with the survey name.',
                         });
                     }
                 },
@@ -35,9 +37,9 @@ function deleteScript() {
         });
     } else {
         $.alert({
-            title: 'Delete Survey: <code>' + survey_name + "</code>",
+            title: 'Delete script: <code>' + script_generated_id + "</code>",
             type: "red",
-            content: 'Please first give a name to the survey and then delete it.',
+            content: 'Something went wrong!',
         });
     }
 
@@ -48,8 +50,34 @@ function initRScriptsTable() {
         "order": [[0, "asc"]]
     });
 
-    table.on('click', 'tr[id|="r-scripts-url"]', function (e) {
+    table.on('click', 'tr[id|="r-script-url"]', function (e) {
         var ids = $(this).attr('id').split('-');
         document.location = window.location + '/update/' + parseInt(ids[3]);
     });
+}
+
+function initREditor() {
+
+    // load the monaco editor for css fields
+    if ($('.r-script').length > 0) {
+        var rScript = $('.r-script')[0];
+        console.log(rScript, $('.r-script-value textarea').val());
+        require.config({ paths: { vs: BASE_PATH + '/js/ext/vs' } });
+        require(['vs/editor/editor.main'], function () {
+            var editorOptions = {
+                value: $('.r-script-value textarea').val(),
+                language: 'r',
+                automaticLayout: true,
+                renderLineHighlight: "none"
+            }
+            console.log(monaco);
+            var editorConfig = monaco.editor.create(rScript, editorOptions);
+            editorConfig.getAction('editor.action.formatDocument').run().then(() => {
+                calcMonacoEditorSize(editorConfig, rScript);
+            });
+            editorConfig.onDidChangeModelContent(function (e) {
+                $('.r-script-value textarea').val(editorConfig.getValue());
+            });
+        });
+    }
 }

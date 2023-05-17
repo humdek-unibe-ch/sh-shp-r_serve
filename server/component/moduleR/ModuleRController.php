@@ -37,6 +37,7 @@ class ModuleRController extends BaseController
             }
         } else if ($mode === UPDATE && $sid > 0 && isset($_POST['name'])&& isset($_POST['script'])) {
             $this->model->update_script($sid, $_POST['name'], $_POST['script']);
+            header('Location: ' . $this->model->get_link_url("moduleR"));
         } else if ($mode === DELETE && $sid > 0) {
             $del_res = $this->model->delete_script($sid);
             if ($del_res) {

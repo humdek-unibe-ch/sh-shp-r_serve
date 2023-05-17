@@ -59,7 +59,7 @@ class ModuleRView extends BaseView
             require __DIR__ . "/tpl_moduleR.php";
         } else {
             require __DIR__ . "/tpl_moduleR_Alerts.php";
-            $card_title = '<span>R script </span>'  . (isset($this->survey['generated_id']) ? ('<div> <code>&nbsp;' . $this->survey['generated_id'] . '</code></div>') : '');          
+            $card_title = '<span>R script </span>'  . (isset($this->script['generated_id']) ? ('<div> <code>&nbsp;' . $this->script['generated_id'] . '</code></div>') : '');
             $rScriptHolderChildren = array(
                 $this->output_check_multiple_users(true),
                 new   BaseStyleComponent("div", array(
@@ -90,7 +90,39 @@ class ModuleRView extends BaseView
                     "type" => "warning",
                     "id" => "r-script-card",
                     "title" => $card_title,
-                    "children" => array()
+                    "children" => array(new BaseStyleComponent("form", array(
+                        "label" => "Update R Script",
+                        "url" => $this->model->get_link_url("moduleRMode", array("mode" => UPDATE, "sid" => $this->sid)),
+                        "type" => "warning",
+                        "url_cancel" => $this->model->get_link_url("moduleR", array()),
+                        "children" => array(
+                            new BaseStyleComponent("input", array(
+                                "type_input" => "hidden",
+                                "name" => "generated_id",
+                                "value" => isset($this->script['generated_id']) ? $this->script['generated_id'] : '',
+                                "is_required" => true
+                            )),
+                            new BaseStyleComponent("input", array(
+                                "label" => "Script name",
+                                "type_input" => "text",
+                                "name" => "name",
+                                "value" => isset($this->script['name']) ? $this->script['name'] : '',
+                                "is_required" => true,
+                                "css" => "mb-3",
+                                "placeholder" => "Enter script name",
+                            )),
+                            new BaseStyleComponent("textarea", array(
+                                "label" => "R Script",
+                                "name" => "script",
+                                "css" => "r-script-value d-none",
+                                "value" => isset($this->script['script']) ? $this->script['script'] : '',
+                                "placeholder" => "Write R code",
+                            )),
+                            new BaseStyleComponent("div", array(
+                                "css" => "r-script form-control mb-3",
+                            ))
+                        ),
+                    )))
                 ))
             );
             $rScriptHolder = new BaseStyleComponent("div", array(
@@ -146,8 +178,7 @@ class ModuleRView extends BaseView
     {
         if (empty($local)) {
             if (DEBUG) {
-                $local = array(
-                );
+                $local = array();
             } else {
                 $local = array(__DIR__ . "/../../../../rserve/css/ext/rserve.min.css?v=" . rtrim(shell_exec("git describe --tags")));
             }
