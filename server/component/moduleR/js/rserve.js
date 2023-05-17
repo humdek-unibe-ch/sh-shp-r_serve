@@ -61,7 +61,6 @@ function initREditor() {
     // load the monaco editor for css fields
     if ($('.r-script').length > 0) {
         var rScript = $('.r-script')[0];
-        console.log(rScript, $('.r-script-value textarea').val());
         require.config({ paths: { vs: BASE_PATH + '/js/ext/vs' } });
         require(['vs/editor/editor.main'], function () {
             var editorOptions = {
@@ -70,7 +69,6 @@ function initREditor() {
                 automaticLayout: true,
                 renderLineHighlight: "none"
             }
-            console.log(monaco);
             var editorConfig = monaco.editor.create(rScript, editorOptions);
             editorConfig.getAction('editor.action.formatDocument').run().then(() => {
                 calcMonacoEditorSize(editorConfig, rScript);
