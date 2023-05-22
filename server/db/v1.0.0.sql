@@ -15,6 +15,9 @@ VALUES ((SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return' LIMI
 INSERT IGNORE INTO `hooks` (`id_hookTypes`, `name`, `description`, `class`, `function`, `exec_class`, `exec_function`, `priority`) 
 VALUES ((SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return' LIMIT 0,1), 'rserve-get-job-type', 'Get job type', 'UserInput', 'get_job_type', 'RserveHooks', 'get_job_type', 10);
 
+-- add sensitive page
+INSERT IGNORE INTO `hooks` (`id_hookTypes`, `name`, `description`, `class`, `function`, `exec_class`, `exec_function`, `priority`) VALUES ((SELECT id FROM lookups WHERE lookup_code = 'hook_overwrite_return' LIMIT 0,1), 'rserve-get_sensible_pages', 'Add sesnible page', 'Router', 'get_sensible_pages', 'RserveHooks', 'get_sensible_pages', 1);
+
 SET @id_modules_page = (SELECT id FROM pages WHERE keyword = 'sh_modules');
 
  -- add R module page
@@ -45,5 +48,6 @@ CREATE TABLE IF NOT EXISTS `r_scripts` (
     `name` VARCHAR(100) NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `script` LONGTEXT    
+    `script` LONGTEXT,
+    `test_variables` TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

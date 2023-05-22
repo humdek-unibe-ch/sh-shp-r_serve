@@ -95,10 +95,11 @@ function test_r_script() {
         window.location,
         {
             mode: "test_script",
-            script: $('.r-script-value textarea').val()
+            script: $('.r-script-value textarea').val(),
+            test_variables: $('.r-script-test-variables textarea').val()
         },
         function (data) {
-            console.log(JSON.stringify(data, null, 3) );
+            console.log(JSON.stringify(data, null, 3));
             if (data.result) {
                 $.alert({
                     title: 'Successful execution - R Script: ' + script_generated_id,
@@ -110,7 +111,7 @@ function test_r_script() {
                 $.alert({
                     title: 'Error in R Script: ' + script_generated_id,
                     type: "red",
-                    content: JSON.stringify(data, null, 3),
+                    content: "<p class='pre-wrap'>" + JSON.stringify(data, null, 3) + "</p>"
                 });
             }
         },

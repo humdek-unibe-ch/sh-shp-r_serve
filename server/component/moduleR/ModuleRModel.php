@@ -69,14 +69,20 @@ class ModuleRModel extends BaseModel
      * Script name
      * @param string $script
      * Script text
+     * @param string $test_variables
+     * Json structure for test variables
      * @return int
      *  The id of the new survey or false if the process failed.
      */
-    public function update_script($sid, $name, $script)
+    public function update_script($sid, $name, $script, $test_variables)
     {
         try {
             $this->db->begin_transaction();
-            $this->db->update_by_ids(RSERVE_TABLE_R_SCRIPTS, array("name" => $name, "script" => $script), array('id' => $sid));
+            $this->db->update_by_ids(RSERVE_TABLE_R_SCRIPTS, array(
+                "name" => $name,
+                "script" => $script,
+                "test_variables" => $test_variables
+            ), array('id' => $sid));
             $this->transaction->add_transaction(
                 transactionTypes_update,
                 transactionBy_by_user,
@@ -133,16 +139,35 @@ class ModuleRModel extends BaseModel
      * Execute R script
      * @param string $script
      * The source code of R
+     * @param object $variables
+     * Variable values that will be used in the script
      * @return object
      * Return the result, object with all variables and their values
      */
-    public function execute_r_script($script)
+    public function execute_r_script($script, $variables = array())
     {
-        // Connect to the Rserve server
-        $connection = new Connection('localhost', 6311);
-        $result = $connection->evalString($script);
-        // var_dump($result);
-        $connection->close();
-        return $result;
+        try {
+            // Connect to the Rserve server
+            $connection = new Connection('localhost', 6311);
+            if (!is_array($variables)) {
+                return array(
+                    "result" => false,
+                    "data" => "Error in the variables"
+                );
+            }
+            $r_script = $this->db->replace_calced_values($script, $variables);
+            $result = $connection->evalString($r_script);
+            // var_dump($result);
+            $connection->close();
+            return array(
+                "result" => true,
+                "data" => $result
+            );
+        } catch (Exception $e) {
+            return array(
+                "result" => false,
+                "data" => $e->getMessage()
+            );
+        }
     }
 }

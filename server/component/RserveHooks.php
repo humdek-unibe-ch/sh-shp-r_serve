@@ -201,5 +201,17 @@ class RserveHooks extends BaseHooks
         }
         return $res;
     }
+
+    /**
+     * Add sensible page for s script editing     
+     * @return array
+     * Return array with the sensible pages
+     */
+    public function get_sensible_pages($args)
+    {
+        $res = $this->execute_private_method($args);
+        $res[] = 'moduleRMode';
+        return $res;
+    }
 }
 ?>

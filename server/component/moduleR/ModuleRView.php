@@ -127,6 +127,14 @@ class ModuleRView extends BaseView
                             )),
                             new BaseStyleComponent("div", array(
                                 "css" => "r-script form-control mb-3",
+                            )),
+                            new BaseStyleComponent("textarea", array(
+                                "label" => "Test variables",
+                                "name" => "test_variables",
+                                "css" => "r-script-test-variables",
+                                "type_input" => "json",
+                                "value" => isset($this->script['test_variables']) ? $this->script['test_variables'] : '',
+                                "placeholder" => "Write test variables in JSON structure",
                             ))
                         ),
                     )))
