@@ -1,8 +1,11 @@
+var unsavedChanges = [];
+
 $(document).ready(function () {
     initRScriptsTable();
     initDeleteRScript();
     initREditor();
     initTestScriptBtn();
+    initUnsavedChangesListener();
 });
 
 function initDeleteRScript() {
@@ -76,6 +79,7 @@ function initREditor() {
             });
             editorConfig.onDidChangeModelContent(function (e) {
                 $('.r-script-value textarea').val(editorConfig.getValue());
+                $('.r-script-value textarea').trigger('change');
             });
         });
     }
@@ -117,4 +121,23 @@ function test_r_script() {
         },
         "json"
     );
+}
+
+function initUnsavedChangesListener() {
+    $(window).bind('beforeunload', function (e) {
+        if (unsavedChanges.length > 0) {
+            return false;
+        }
+    });
+    $('input').on('change', function () { //triggers change in all input fields including text type
+        unsavedChanges.push(this);
+    });
+
+    $('textarea').on('change', function () { //triggers change in all textareas
+        unsavedChanges.push(this);
+    });
+
+    $('#section-r-script-form').find(':submit').on('click', function () {
+        unsavedChanges = []; // clear the state as we will update it
+    })
 }

@@ -99,6 +99,7 @@ class ModuleRView extends BaseView
                     "title" => $card_title,
                     "children" => array(new BaseStyleComponent("form", array(
                         "label" => "Update R Script",
+                        "id" => "r-script-form",
                         "url" => $this->model->get_link_url("moduleRMode", array("mode" => UPDATE, "sid" => $this->sid)),
                         "type" => "warning",
                         "url_cancel" => $this->model->get_link_url("moduleR", array()),
