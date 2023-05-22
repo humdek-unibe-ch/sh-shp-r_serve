@@ -51,3 +51,5 @@ CREATE TABLE IF NOT EXISTS `r_scripts` (
     `script` LONGTEXT,
     `test_variables` TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionBy', 'by_r_script', 'By R Script', 'The action was done by an R script');

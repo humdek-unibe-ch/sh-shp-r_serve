@@ -3,3 +3,7 @@
     font-family: monospace;
     margin: 0;
 }
+
+.r-script{
+    max-height: 500px;
+}

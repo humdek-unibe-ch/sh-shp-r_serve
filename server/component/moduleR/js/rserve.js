@@ -17,7 +17,6 @@ function initDeleteRScript() {
 
 function deleteScript() {
     var script_generated_id = $('input[name="generated_id"]').val();
-    console.log(script_generated_id);
     if (script_generated_id) {
         $.confirm({
             title: 'Delete script: <code>' + script_generated_id + "</code>",
@@ -71,7 +70,8 @@ function initREditor() {
                 value: $('.r-script-value textarea').val(),
                 language: 'r',
                 automaticLayout: true,
-                renderLineHighlight: "none"
+                renderLineHighlight: "none",
+                automaticLayout: true
             }
             var editorConfig = monaco.editor.create(rScript, editorOptions);
             editorConfig.getAction('editor.action.formatDocument').run().then(() => {
@@ -93,7 +93,6 @@ function initTestScriptBtn() {
 }
 
 function test_r_script() {
-    console.log('Test this:', $('.r-script-value textarea').val());
     var script_generated_id = $('input[name="generated_id"]').val();
     $.post(
         window.location,
@@ -103,7 +102,6 @@ function test_r_script() {
             test_variables: $('.r-script-test-variables textarea').val()
         },
         function (data) {
-            console.log(JSON.stringify(data, null, 3));
             if (data.result) {
                 $.alert({
                     title: 'Successful execution - R Script: ' + script_generated_id,

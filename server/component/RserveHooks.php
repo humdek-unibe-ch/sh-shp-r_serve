@@ -47,60 +47,49 @@ class RserveHooks extends BaseHooks
     private function execute_r_script($args)
     {
         // Connect to the Rserve server
-        $r_script = 'myString <- "{{question1}}"; stringLength <- nchar(myString);result <- list(stringLength = stringLength);result';
-        $form_values = $this->user_input->get_form_values($args['task_info']['config']['form_data']['form_fields']);
-        $r_script = $this->db->replace_calced_values($r_script, $form_values);
-        $result = $this->moduleR->execute_r_script($r_script);
-        // var_dump($result);
-        return true;
+        $r_script_info = $this->moduleR->get_script($args['task_info']['config']['r_script']);
+        if ($r_script_info) {
+            $r_script = $r_script_info['script'];
+            $form_values = $this->user_input->get_form_values($args['task_info']['config']['form_data']['form_fields']);
+            $result = $this->moduleR->execute_r_script($r_script, $form_values);
+            if ($result['result']) {
+                $result['data']['id_users'] = $args['user']['id_users'];
+                $save_result = $this->user_input->save_external_data(transactionBy_by_r_script, $r_script_info['generated_id'], $result['data']);
+                if ($save_result) {
+                    $this->transaction->add_transaction(
+                        transactionTypes_insert,
+                        transactionBy_by_r_script,
+                        null,
+                        $this->transaction::TABLE_SCHEDULED_JOBS,
+                        $args['user']['id_scheduledJobs'],
+                        false,
+                        "R script results were saved in table " . $r_script_info['generated_id']
+                    );
+                }
+                return $save_result;
+            } else {
+                $this->transaction->add_transaction(
+                    transactionTypes_insert,
+                    transactionBy_by_r_script,
+                    null,
+                    $this->transaction::TABLE_SCHEDULED_JOBS,
+                    $args['user']['id_scheduledJobs'],
+                    false,
+                    array(
+                        "error" => "Error while executing R Script",
+                        "error_msg" => $result['data']
+                    )
+                );
+                return false;
+            }
+        } else {
+            $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_r_script, null, null, null, false, "The R script was not found; " . json_encode($args));
+            return false;
+        }
     }
 
 
     /* Public Methods *********************************************************/
-
-    /**
-     * Set csp rules for Rserve     
-     * @return string
-     * Return csp_rules
-     */
-    public function test()
-    {
-        return;
-        // // Connect to the Rserve server
-        // $connection = new Connection('localhost', 6311);
-        // $result = $connection->evalString('sum <- 5 + 10; sum');
-        // // var_dump($result);
-        // $connection->close();
-
-        // // Connect to the Rserve server
-        // $connection = new Connection('localhost', 6311);
-        // $connection->evalString("library(dplyr)");
-        // $connection->evalString("data <- iris %>% filter(Species == 'setosa') %>% select(Sepal.Length, Sepal.Width)");
-        // $result = $connection->evalString("data");
-        // // var_dump($result);
-        // $connection->close();
-
-        // // Connect to the Rserve server
-        // $connection = new Connection('localhost', 6311);
-        // $r_string = 'data <- data.frame(Name = c("John", "Jane", "Mark", "Emily"), Age = c(25, 30, 35, 40), Gender = c("Male", "Female", "Male", "Female"), Salary = c(50000, 60000, 70000, 80000), stringsAsFactors = FALSE);filtered_data <- subset(data, Age > 30);sorted_data <- data[order(data$Salary, decreasing = TRUE), ];selected_data <- data[, c("Name", "Age", "Salary")];list(filtered_data, sorted_data, selected_data)';
-        // $result = $connection->evalString($r_string);
-        // var_dump($result);
-        // $connection->close();
-
-        // // Connect to the Rserve server
-        // $connection = new Connection('localhost', 6311);
-        // // $connection->setAsync(true);
-        // $r_string = 'require(udpipe);ud_model <- udpipe_download_model(language = "german");ud_model <- udpipe_load_model(ud_model$file_model);ud_model';
-        // $res = $connection->evalString($r_string);
-        // // $res = $connection->getResults();
-        // var_dump($res);
-        // // $connection->evalString("ud_model <- udpipe_download_model(language = 'german')");
-        // // $connection->evalString('ud_model <- udpipe_load_model(ud_model$file_model)');
-        // //$connection->evalString('x <- udpipe_annotate(ud_model, x = nlp$V1, doc_id = nlp$V1)');
-        // //$connection->evalString('x <- as.data.frame(x)');
-        // // $result = $connection->evalString('ud_model');
-        // $connection->close();
-    }
 
     /**
      * Execute R task
@@ -129,17 +118,20 @@ class RserveHooks extends BaseHooks
      */
     public function get_json_schema($args)
     {
+        $r_scripts = $this->db->fetch_table_as_select_values('r_scripts', 'id', array('generated_id', 'name'));
+        $enum_titles = array();
+        $enum = array();
+        foreach ($r_scripts as $key => $value) {
+            $enum_titles[] = $value['text'];
+            $enum[] = $value['value'];
+        }
         $res = (string) $this->execute_private_method($args);
         $res = json_decode($res, true);
         $r_script = array(
             "type" => "string",
             "options" => array(
                 "grid_columns" => 12,
-                "enum_titles" => array(
-                    "script1",
-                    "script2",
-                    "script3"
-                ),
+                "enum_titles" => $enum_titles,
                 "dependencies" => array(
                     "job_type" => array(
                         "r_script"
@@ -148,11 +140,7 @@ class RserveHooks extends BaseHooks
             ),
             "title" => "R script",
             "description" => "Select R script",
-            "enum" => array(
-                "script1",
-                "script2",
-                "script3"
-            )
+            "enum" => $enum
         );
         $res['definitions']['job_ref']['properties']['job_type']['enum'][] = "r_script";
         $res['definitions']['job_ref']['properties']['job_type']['options']['enum_titles'][] = "R script";

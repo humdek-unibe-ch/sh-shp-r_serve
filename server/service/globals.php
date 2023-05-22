@@ -7,4 +7,5 @@
 <?php
     define('ACTION_JOB_TYPE_R_SCRIPT', 'r_script');
     define('RSERVE_TABLE_R_SCRIPTS', 'r_scripts');
+    define('transactionBy_by_r_script', 'by_r_script');
 ?>
