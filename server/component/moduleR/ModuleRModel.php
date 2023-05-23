@@ -156,8 +156,8 @@ class ModuleRModel extends BaseModel
                 );
             }
             $r_script = $this->db->replace_calced_values($script, $variables);
+            $r_script = str_replace("\r\n", "\n", $r_script); //RServe accepts only these new lines
             $result = $connection->evalString($r_script);
-            // var_dump($result);
             $connection->close();
             return array(
                 "result" => true,
@@ -169,5 +169,28 @@ class ModuleRModel extends BaseModel
                 "data" => $e->getMessage()
             );
         }
+    }
+    function compareStringsAndPrintDifferences($string1, $string2)
+    {
+        $length1 = strlen($string1);
+        $length2 = strlen($string2);
+        $maxLength = max($length1, $length2);
+        $res = array();
+
+        for ($i = 0; $i < $maxLength; $i++) {
+            if ($i < $length1 && $i < $length2) {
+                if ($string1[$i] === "\n" || "\n" === $string2[$i]) {
+                    $res[] = "New line";
+                }
+                if ($string1[$i] !== $string2[$i]) {
+                    $res[] = "Difference at position $i: $string1[$i] !== $string2[$i]\n";
+                }
+            } elseif ($i < $length1) {
+                $res[] = "Difference at position $i: $string1[$i] !== End of string\n";
+            } elseif ($i < $length2) {
+                $res[] = "Difference at position $i: End of string !== $string2[$i]\n";
+            }
+        }
+        return $res;
     }
 }

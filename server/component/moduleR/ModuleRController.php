@@ -36,7 +36,7 @@ class ModuleRController extends BaseController
                 header('Location: ' . $url);
             }
         } else if ($mode === UPDATE && $sid > 0 && isset($_POST['name']) && isset($_POST['script']) && isset($_POST['test_variables'])) {
-            $res = $this->model->update_script($sid, $_POST['name'], $_POST['script'], $_POST['test_variables']);
+            $res = $this->model->update_script($sid, $_POST['name'], $_POST['script'], $_POST['test_variables']);            
             if ($res) {
                 $this->success = true;
                 $this->success_msgs[] = "[" . date("H:i:s") . "] Successfully updated script: " . $_POST['name'];
