@@ -8,8 +8,7 @@ require_once __DIR__ . "/../../../../../component/BaseModel.php";
 require_once __DIR__ . '/../../service/ext/rserve/vendor/autoload.php';
 
 use Sentiweb\Rserve\Connection;
-use Sentiweb\Rserve\Parser\NativeArray;
-use Sentiweb\Rserve\Evaluator;
+use Sentiweb\Rserve\Exception as Rserve_Exception;
 
 /**
  * This class is used to prepare all data related to the cmsPreference component such
@@ -17,6 +16,26 @@ use Sentiweb\Rserve\Evaluator;
  */
 class ModuleRModel extends BaseModel
 {
+    /* Constants ************************************************/
+    const R_SCRIPT_CHECK_RESULT = 'if (exists("result")) {
+                result
+            } else {
+                result = "There is no variable `result`. Please assign the end result into a variable called `result`. You can pass multiple values in a list."
+                result
+            }';
+    const R_SCRIPT_ASYNC_CALLBACK = 'library(httr)
+                                    library(jsonlite)
+                                    url <- "$callback_url"
+                                    body <- list($callback_params)
+                                    if (!is.list(result)) {
+                                        body[["result"]] <- result
+                                    }
+                                    # Loop through each key-value pair in the result list
+                                    for (key in names(result)) {
+                                        value <- result[[key]]
+                                        body[[key]] <- value
+                                    }
+                                    POST(url, body = body, encode = "form", content_type("application/x-www-form-urlencoded"))';
 
     /* Constructors ***********************************************************/
 
@@ -24,12 +43,58 @@ class ModuleRModel extends BaseModel
      * The constructor.
      *
      * @param array $services
-     *  An associative array holding the differnt available services. See the
+     *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
      */
     public function __construct($services)
     {
         parent::__construct($services);
+    }
+
+    /**
+     * Get the protocol. If it is debug it returns http otherwise https
+     * @retval string
+     * it returns the protocol
+     */
+    private function get_protocol()
+    {
+        return DEBUG ? 'http://' : 'https://';
+    }
+
+    /**
+     * Add extra script to check if the result variable exists
+     * @param string $r_script
+     * The R script
+     * @return string
+     * Return the modified script
+     */
+    private function add_result_check($r_script)
+    {
+        return $r_script . (in_array(substr($r_script, -1), array(';', "\n", "\r\n")) ? "" : ";") . ModuleRModel::R_SCRIPT_CHECK_RESULT;
+    }
+
+    /**
+     * Add extra script to check if the result variable exists
+     * @param string $r_script
+     * The R script
+     * @param int $id_users
+     * The user for whom we save the result
+     * @param int $id_scheduledJobs
+     * The job id that was used for the R task
+     * @return string
+     * Return the modified script
+     */
+    private function add_async_callback_request($r_script, $r_generated_id, $id_users, $id_scheduledJobs)
+    {
+        $r_script = $r_script . (in_array(substr($r_script, -1), array(';', "\n", "\r\n")) ? "" : ";") . ModuleRModel::R_SCRIPT_ASYNC_CALLBACK;
+        $callback_url = $this->get_protocol() . $_SERVER['HTTP_HOST'] .$this->get_link_url("callback", array("class" => "CallbackRserve", "method" => "save_data"));
+        $callback_params = '"callback_key" = "' . $this->db->get_callback_key() . '",' . PHP_EOL;
+        $callback_params .= '"id_users" = ' . $id_users . ',' . PHP_EOL;
+        $callback_params .= '"r_generated_id" = "' . $r_generated_id . '",' . PHP_EOL;
+        $callback_params .= '"id_scheduledJobs" = ' . $id_scheduledJobs;
+        $r_script = str_replace('$callback_url', $callback_url, $r_script);
+        $r_script = str_replace('$callback_params', $callback_params, $r_script);
+        return $r_script;
     }
 
     /**
@@ -71,17 +136,20 @@ class ModuleRModel extends BaseModel
      * Script text
      * @param string $test_variables
      * Json structure for test variables
+     * @param boolean $async
+     * Is the script async
      * @return int
      *  The id of the new survey or false if the process failed.
      */
-    public function update_script($sid, $name, $script, $test_variables)
+    public function update_script($sid, $name, $script, $test_variables, $async)
     {
         try {
             $this->db->begin_transaction();
             $this->db->update_by_ids(RSERVE_TABLE_R_SCRIPTS, array(
                 "name" => $name,
                 "script" => $script,
-                "test_variables" => $test_variables
+                "test_variables" => $test_variables,
+                "async" => (int)$async
             ), array('id' => $sid));
             $this->transaction->add_transaction(
                 transactionTypes_update,
@@ -156,41 +224,96 @@ class ModuleRModel extends BaseModel
                 );
             }
             $r_script = $this->db->replace_calced_values($script, $variables);
+            $r_script = $this->add_result_check($r_script);
             $r_script = str_replace("\r\n", "\n", $r_script); //RServe accepts only these new lines
             $result = $connection->evalString($r_script);
             $connection->close();
             return array(
                 "result" => true,
-                "data" => $result
+                "data" => is_array($result) ? $result : array("result" => $result)
             );
-        } catch (Exception $e) {
+        } catch (Rserve_Exception  $e) {
             return array(
                 "result" => false,
                 "data" => $e->getMessage()
             );
         }
     }
-    function compareStringsAndPrintDifferences($string1, $string2)
-    {
-        $length1 = strlen($string1);
-        $length2 = strlen($string2);
-        $maxLength = max($length1, $length2);
-        $res = array();
 
-        for ($i = 0; $i < $maxLength; $i++) {
-            if ($i < $length1 && $i < $length2) {
-                if ($string1[$i] === "\n" || "\n" === $string2[$i]) {
-                    $res[] = "New line";
-                }
-                if ($string1[$i] !== $string2[$i]) {
-                    $res[] = "Difference at position $i: $string1[$i] !== $string2[$i]\n";
-                }
-            } elseif ($i < $length1) {
-                $res[] = "Difference at position $i: $string1[$i] !== End of string\n";
-            } elseif ($i < $length2) {
-                $res[] = "Difference at position $i: End of string !== $string2[$i]\n";
-            }
+    /**
+     * Execute R script asynchronously
+     * @param string $script 
+     * The source code of R
+     * @param object $args
+     * Params passed to the method
+     * @param object $r_script_info
+     * Script info
+     * @param array $variables 
+     * Variable values that will be used in the script
+     */
+    public function execute_r_script_async($script, $args, $r_script_info, $variables = array())
+    {
+        // Connect to the Rserve server
+        $connection = new Connection('localhost', 6311);
+        if (!is_array($variables)) {
+            return array(
+                "result" => false,
+                "data" => "Error in the variables"
+            );
         }
-        return $res;
+        $r_script = $this->db->replace_calced_values($script, $variables);
+        $r_script = $this->add_result_check($r_script);
+        $r_script = $this->add_async_callback_request($r_script, $r_script_info['generated_id'], $args['user']['id_users'], $args['task_info']['id']);
+        $r_script = str_replace("\r\n", "\n", $r_script); //RServe accepts only these new lines
+        $connection->setAsync(true);
+        $result = $connection->evalString($r_script);
+        $connection->close();
+    }
+
+    /**
+     * Save the R results in an external form
+     * @param object $results
+     * The results, object with the the variables and their data
+     * @param int $id_users
+     * The user for whom we save the result
+     * @param int $id_scheduledJobs
+     * The job id that was used for the R task
+     * @param string $r_generated_id
+     * The R generated id which is used for the table name
+     * @return boolean
+     * The result of the function
+     */
+    public function save_r_results($result, $id_users, $id_scheduledJobs, $r_generated_id)
+    {
+        if ($result['result']) {
+            $result['data']['id_users'] = $id_users;
+            $save_result = $this->user_input->save_external_data(transactionBy_by_r_script, $r_generated_id, $result['data']);
+            if ($save_result) {
+                $this->transaction->add_transaction(
+                    transactionTypes_insert,
+                    transactionBy_by_r_script,
+                    null,
+                    $this->transaction::TABLE_SCHEDULED_JOBS,
+                    $id_scheduledJobs,
+                    false,
+                    "R script results were saved in table " . $r_generated_id
+                );
+            }
+            return $save_result;
+        } else {
+            $this->transaction->add_transaction(
+                transactionTypes_insert,
+                transactionBy_by_r_script,
+                null,
+                $this->transaction::TABLE_SCHEDULED_JOBS,
+                $id_scheduledJobs,
+                false,
+                array(
+                    "error" => "Error while executing R Script",
+                    "error_msg" => $result['data']
+                )
+            );
+            return false;
+        }
     }
 }

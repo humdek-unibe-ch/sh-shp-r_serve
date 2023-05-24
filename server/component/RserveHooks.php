@@ -8,7 +8,6 @@ require_once __DIR__ . "/../../../../component/BaseHooks.php";
 require_once __DIR__ . "/../../../../component/style/BaseStyleComponent.php";
 require_once __DIR__ . "/moduleR/ModuleRModel.php";
 
-
 /**
  * The class to define the hooks for the plugin.
  */
@@ -34,7 +33,7 @@ class RserveHooks extends BaseHooks
         $this->moduleR = new ModuleRModel($this->services);
     }
 
-    /* Private Methods *********************************************************/
+    /* Private Methods *********************************************************/    
 
     /**
      * Execute R script
@@ -49,38 +48,15 @@ class RserveHooks extends BaseHooks
         // Connect to the Rserve server
         $r_script_info = $this->moduleR->get_script($args['task_info']['config']['r_script']);
         if ($r_script_info) {
+            // return true;
             $r_script = $r_script_info['script'];
             $form_values = $this->user_input->get_form_values($args['task_info']['config']['form_data']['form_fields']);
-            $result = $this->moduleR->execute_r_script($r_script, $form_values);
-            if ($result['result']) {
-                $result['data']['id_users'] = $args['user']['id_users'];
-                $save_result = $this->user_input->save_external_data(transactionBy_by_r_script, $r_script_info['generated_id'], $result['data']);
-                if ($save_result) {
-                    $this->transaction->add_transaction(
-                        transactionTypes_insert,
-                        transactionBy_by_r_script,
-                        null,
-                        $this->transaction::TABLE_SCHEDULED_JOBS,
-                        $args['user']['id_scheduledJobs'],
-                        false,
-                        "R script results were saved in table " . $r_script_info['generated_id']
-                    );
-                }
-                return $save_result;
+            if ($r_script_info['async']) {
+                $this->moduleR->execute_r_script_async($r_script, $args, $r_script_info, $form_values);
+                return true;
             } else {
-                $this->transaction->add_transaction(
-                    transactionTypes_insert,
-                    transactionBy_by_r_script,
-                    null,
-                    $this->transaction::TABLE_SCHEDULED_JOBS,
-                    $args['user']['id_scheduledJobs'],
-                    false,
-                    array(
-                        "error" => "Error while executing R Script",
-                        "error_msg" => $result['data']
-                    )
-                );
-                return false;
+                $result = $this->moduleR->execute_r_script($r_script, $form_values);
+                return $this->moduleR->save_r_results($result, $args['user']['id_users'], $args['user']['id_scheduledJobs'], $r_script_info['generated_id']);
             }
         } else {
             $this->transaction->add_transaction(transactionTypes_insert, transactionBy_by_r_script, null, null, null, false, "The R script was not found; " . json_encode($args));

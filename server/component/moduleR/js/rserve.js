@@ -93,6 +93,9 @@ function initTestScriptBtn() {
 }
 
 function test_r_script() {
+    var btn = $("#r-script-test-btn")[0];
+    var origLabel = $(btn).html();
+    $(btn).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"> </span> ' + origLabel);
     var script_generated_id = $('input[name="generated_id"]').val();
     $.post(
         window.location,
@@ -102,6 +105,7 @@ function test_r_script() {
             test_variables: $('.r-script-test-variables textarea').val()
         },
         function (data) {
+            $(btn).html(origLabel);
             if (data.result) {
                 $.alert({
                     title: 'Successful execution - R Script: ' + script_generated_id,
@@ -118,7 +122,15 @@ function test_r_script() {
             }
         },
         "json"
-    );
+    ).fail(function () {
+        // Code to execute when the $.post() call fails
+        $(btn).html(origLabel);
+        $.alert({
+            title: 'The script was not executed: ' + script_generated_id,
+            type: "red",
+            content: "<p class='pre-wrap'>Something went wrong!</p>"
+        });
+    });;
 }
 
 function initUnsavedChangesListener() {

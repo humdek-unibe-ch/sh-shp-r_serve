@@ -4,6 +4,14 @@
     margin: 0;
 }
 
-.r-script{
+.r-script {
     max-height: 500px;
+}
+
+.r-serve-async-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    flex-direction: row-reverse;
+    gap: 0.5rem;
 }

@@ -119,6 +119,14 @@ class ModuleRView extends BaseView
                                 "css" => "mb-3",
                                 "placeholder" => "Enter script name",
                             )),
+                            new BaseStyleComponent("input", array(
+                                "label" => "Async",
+                                "type_input" => "checkbox",
+                                "checkbox_value" => "1",
+                                "name" => "async",
+                                "value" => isset($this->script['async']) ? $this->script['async'] : 0,
+                                "css" => "mb-3 r-serve-async-checkbox",
+                            )),
                             new BaseStyleComponent("textarea", array(
                                 "label" => "R Script",
                                 "name" => "script",
