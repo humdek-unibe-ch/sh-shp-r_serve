@@ -23,8 +23,11 @@ class ModuleRModel extends BaseModel
                 result = "There is no variable `result`. Please assign the end result into a variable called `result`. You can pass multiple values in a list."
                 result
             }';
-    const R_SCRIPT_ASYNC_CALLBACK = 'library(httr)
-                                    library(jsonlite)
+    const R_SCRIPT_ASYNC_CALLBACK = 'if (!require("httr")) {
+                                       # If not installed, install httr
+                                        install.packages("httr")
+                                    }
+                                    library(httr)
                                     url <- "$callback_url"
                                     body <- list($callback_params)
                                     if (!is.list(result)) {
@@ -216,7 +219,7 @@ class ModuleRModel extends BaseModel
     {
         try {
             // Connect to the Rserve server
-            $connection = new Connection('localhost', 6311);
+            $connection = new Connection('192.168.0.58', 6311);
             if (!is_array($variables)) {
                 return array(
                     "result" => false,
@@ -254,7 +257,7 @@ class ModuleRModel extends BaseModel
     public function execute_r_script_async($script, $args, $r_script_info, $variables = array())
     {
         // Connect to the Rserve server
-        $connection = new Connection('localhost', 6311);
+        $connection = new Connection('192.168.0.58', 6311);
         if (!is_array($variables)) {
             return array(
                 "result" => false,
