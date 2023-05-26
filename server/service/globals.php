@@ -8,4 +8,7 @@
     define('ACTION_JOB_TYPE_R_SCRIPT', 'r_script');
     define('RSERVE_TABLE_R_SCRIPTS', 'r_scripts');
     define('transactionBy_by_r_script', 'by_r_script');
+
+    /* Page keywords */
+    define('SH_MODULE_R', 'sh_module_r');
 ?>

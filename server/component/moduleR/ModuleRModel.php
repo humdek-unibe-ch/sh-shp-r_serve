@@ -40,6 +40,12 @@ class ModuleRModel extends BaseModel
                                     }
                                     POST(url, body = body, encode = "form", content_type("application/x-www-form-urlencoded"))';
 
+
+    /**
+     * The settings for the Rserve
+     */
+    private $rserve_settings;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -52,6 +58,7 @@ class ModuleRModel extends BaseModel
     public function __construct($services)
     {
         parent::__construct($services);
+        $this->rserve_settings = $this->db->fetch_page_info(SH_MODULE_R);
     }
 
     /**
@@ -62,6 +69,16 @@ class ModuleRModel extends BaseModel
     private function get_protocol()
     {
         return DEBUG ? 'http://' : 'https://';
+    }
+
+    /**
+     * Get Rserve connection
+     * @return object 
+     * Return the connection object
+     */
+    private function get_rserve_connection()
+    {
+        return new Connection($this->rserve_settings['rserve_host'], $this->rserve_settings['rserve_port']);
     }
 
     /**
@@ -90,7 +107,7 @@ class ModuleRModel extends BaseModel
     private function add_async_callback_request($r_script, $r_generated_id, $id_users, $id_scheduledJobs)
     {
         $r_script = $r_script . (in_array(substr($r_script, -1), array(';', "\n", "\r\n")) ? "" : ";") . ModuleRModel::R_SCRIPT_ASYNC_CALLBACK;
-        $callback_url = $this->get_protocol() . $_SERVER['HTTP_HOST'] .$this->get_link_url("callback", array("class" => "CallbackRserve", "method" => "save_data"));
+        $callback_url = $this->get_protocol() . $_SERVER['HTTP_HOST'] . $this->get_link_url("callback", array("class" => "CallbackRserve", "method" => "save_data"));
         $callback_params = '"callback_key" = "' . $this->db->get_callback_key() . '",' . PHP_EOL;
         $callback_params .= '"id_users" = ' . $id_users . ',' . PHP_EOL;
         $callback_params .= '"r_generated_id" = "' . $r_generated_id . '",' . PHP_EOL;
@@ -219,7 +236,7 @@ class ModuleRModel extends BaseModel
     {
         try {
             // Connect to the Rserve server
-            $connection = new Connection('192.168.0.58', 6311);
+            $connection = $this->get_rserve_connection();
             if (!is_array($variables)) {
                 return array(
                     "result" => false,
@@ -257,7 +274,7 @@ class ModuleRModel extends BaseModel
     public function execute_r_script_async($script, $args, $r_script_info, $variables = array())
     {
         // Connect to the Rserve server
-        $connection = new Connection('192.168.0.58', 6311);
+        $connection = $this->get_rserve_connection();
         if (!is_array($variables)) {
             return array(
                 "result" => false,
