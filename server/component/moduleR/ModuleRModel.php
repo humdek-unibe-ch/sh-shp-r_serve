@@ -78,7 +78,12 @@ class ModuleRModel extends BaseModel
      */
     private function get_rserve_connection()
     {
-        return new Connection($this->rserve_settings['rserve_host'], $this->rserve_settings['rserve_port']);
+        return new Connection(
+            $this->rserve_settings['rserve_host'], 
+            $this->rserve_settings['rserve_port'],  
+            array(
+                'username'=>$this->rserve_settings['rserve_user_name'],
+                'password'=>$this->rserve_settings['rserve_password']));
     }
 
     /**
