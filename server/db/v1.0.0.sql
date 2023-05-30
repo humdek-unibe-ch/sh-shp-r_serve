@@ -61,7 +61,7 @@ SET @id_modules_page = (SELECT id FROM pages WHERE keyword = 'sh_modules');
 
  -- add R module page
 INSERT IGNORE INTO `pages` (`id`, `keyword`, `url`, `protocol`, `id_actions`, `id_navigation_section`, `parent`, `is_headless`, `nav_position`, `footer_position`, `id_type`, `id_pageAccessTypes`) 
-VALUES (NULL, 'moduleR', '/admin/r', 'GET|POST', '0000000002', NULL, NULL, '0', '94', NULL, '0000000001', (SELECT id FROM lookups WHERE type_code = "pageAccessTypes" AND lookup_code = "mobile_and_web"));
+VALUES (NULL, 'moduleR', '/admin/r', 'GET|POST', '0000000002', NULL, NULL, '0', NULL, NULL, '0000000001', (SELECT id FROM lookups WHERE type_code = "pageAccessTypes" AND lookup_code = "mobile_and_web"));
 SET @id_page = (SELECT id FROM pages WHERE keyword = 'moduleR');
 
 INSERT IGNORE INTO `pages_fields_translation` (`id_pages`, `id_fields`, `id_languages`, `content`) VALUES (@id_page, '0000000008', '0000000001', 'Module R');
