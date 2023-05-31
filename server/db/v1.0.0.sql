@@ -1,5 +1,5 @@
 -- add plugin entry in the plugin table
-INSERT IGNORE INTO plugins (name, version) 
+INSERT IGNORE INTO `plugins` (`name`, version) 
 VALUES ('rserve', 'v1.0.0');
 
 -- add page type sh_module_fitrockr
@@ -93,3 +93,7 @@ CREATE TABLE IF NOT EXISTS `r_scripts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT IGNORE INTO lookups (type_code, lookup_code, lookup_value, lookup_description) values ('transactionBy', 'by_r_script', 'By R Script', 'The action was done by an R script');
+
+-- add libraries entries in the libraries table
+INSERT IGNORE INTO `libraries` (`name`, version, license, comments) VALUES
+('[Rserve php](https://github.com/cturbelin/rserve-php)', '2.0.x-dev', '[GNU](https://www.tldrlegal.com/license/gnu-lesser-general-public-license)', '[License Details](https://github.com/cturbelin/rserve-php/blob/master/LICENCE)');
