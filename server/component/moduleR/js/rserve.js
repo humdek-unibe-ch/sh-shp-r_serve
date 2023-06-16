@@ -129,7 +129,7 @@ function test_r_script() {
         $.alert({
             title: 'The script was not executed: ' + script_generated_id,
             type: "red",
-            content: "<p class='pre-wrap'>Something went wrong! <br> "+e.responseText+"</p>"
+            content: "<p class='pre-wrap'>Something went wrong! <br> " + e.responseText + "</p>"
         });
     });;
 }

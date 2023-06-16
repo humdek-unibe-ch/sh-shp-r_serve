@@ -55,7 +55,7 @@ class ModuleRController extends BaseController
             }
             $result = $this->model->execute_r_script($_POST['script'], $test_variables);
             echo json_encode($result);
-            exit();
+            die();
         } else if ($mode === DELETE && $sid > 0) {
             $del_res = $this->model->delete_script($sid);
             if ($del_res) {
