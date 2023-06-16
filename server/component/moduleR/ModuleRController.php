@@ -54,8 +54,8 @@ class ModuleRController extends BaseController
                 $test_variables = json_decode($_POST['test_variables'], true);
             }
             $result = $this->model->execute_r_script($_POST['script'], $test_variables);
+            header("Content-Type: application/json");
             echo json_encode($result);
-            ob_end_flush();
             exit();
         } else if ($mode === DELETE && $sid > 0) {
             $del_res = $this->model->delete_script($sid);
