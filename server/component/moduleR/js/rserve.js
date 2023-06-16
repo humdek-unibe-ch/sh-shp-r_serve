@@ -122,13 +122,14 @@ function test_r_script() {
             }
         },
         "json"
-    ).fail(function () {
+    ).fail(function (e) {
+        console.log(e.responseText);
         // Code to execute when the $.post() call fails
         $(btn).html(origLabel);
         $.alert({
             title: 'The script was not executed: ' + script_generated_id,
             type: "red",
-            content: "<p class='pre-wrap'>Something went wrong!</p>"
+            content: "<p class='pre-wrap'>Something went wrong! <br> "+e.responseText+"</p>"
         });
     });;
 }
