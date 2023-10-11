@@ -237,10 +237,12 @@ class ModuleRModel extends BaseModel
      * The source code of R
      * @param object $variables
      * Variable values that will be used in the script
+     * @param int $user_id
+     * Show the data for that user
      * @return object
      * Return the result, object with all variables and their values
      */
-    public function execute_r_script($script, $data_config, $variables = array())
+    public function execute_r_script($script, $data_config, $variables = array(), $id_users = null)
     {
         try {
             // Connect to the Rserve server
@@ -251,7 +253,7 @@ class ModuleRModel extends BaseModel
                     "data" => "Error in the variables"
                 );
             }
-            $data_config_values = $data_config ? $this->fetch_data($data_config) : [];
+            $data_config_values = $data_config ? $this->fetch_data($data_config, $id_users) : [];
             $r_script = $this->db->replace_calced_values($script, array_merge($data_config_values, $variables));
             $r_script = $this->add_result_check($r_script);
             $r_script = str_replace("\r\n", "\n", $r_script); //RServe accepts only these new lines
@@ -290,8 +292,8 @@ class ModuleRModel extends BaseModel
                 "result" => false,
             );
         }
-        $data_config = json_decode($r_script_info['data_config'], true);
-        $data_config_values = $data_config ? $this->fetch_data($data_config) : [];
+        $data_config = $r_script_info['data_config'] ? json_decode($r_script_info['data_config'], true) : false;
+        $data_config_values = $data_config ? $this->fetch_data($data_config, $args['user']['id_users']) : [];
         $r_script = $this->db->replace_calced_values($script, array_merge($data_config_values, $variables));
         $r_script = $this->add_result_check($r_script);
         $r_script = $this->add_async_callback_request($r_script, $r_script_info['generated_id'], $args['user']['id_users'], $args['task_info']['id']);
