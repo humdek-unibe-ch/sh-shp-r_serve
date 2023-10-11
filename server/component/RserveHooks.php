@@ -84,7 +84,8 @@ class RserveHooks extends BaseHooks
                 $this->moduleR->execute_r_script_async($r_script, $args, $r_script_info, $form_values);
                 return true;
             } else {
-                $result = $this->moduleR->execute_r_script($r_script, $form_values);
+                $data_config = json_decode($r_script_info['data_config'], true);
+                $result = $this->moduleR->execute_r_script($r_script, $data_config, $form_values);
                 return $this->moduleR->save_r_results($result, $args['user']['id_users'], $args['user']['id_scheduledJobs'], $r_script_info['generated_id']);
             }
         } else {

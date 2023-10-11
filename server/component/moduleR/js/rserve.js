@@ -97,12 +97,17 @@ function test_r_script() {
     var origLabel = $(btn).html();
     $(btn).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"> </span> ' + origLabel);
     var script_generated_id = $('input[name="generated_id"]').val();
+    var data_config = null;
+    if ($("textarea[name='data_config']").val()) {
+        data_config = $("textarea[name='data_config']").val();
+    }
     $.post(
         window.location,
         {
             mode: "test_script",
             script: $('.r-script-value textarea').val(),
-            test_variables: $('.r-script-test-variables textarea').val()
+            test_variables: $('.r-script-test-variables textarea').val(),
+            data_config: data_config
         },
         function (data) {
             $(btn).html(origLabel);
@@ -131,7 +136,7 @@ function test_r_script() {
             type: "red",
             content: "<p class='pre-wrap'>Something went wrong! <br> " + e.responseText + "</p>"
         });
-    });;
+    });
 }
 
 function initUnsavedChangesListener() {

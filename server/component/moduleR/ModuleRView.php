@@ -133,14 +133,18 @@ class ModuleRView extends BaseView
                                 "css" => "r-script-value m-0",
                                 "value" => isset($this->script['script']) ? $this->script['script'] : '',
                                 "placeholder" => "Write R code",
-                            )),
+                            )),                            
                             new BaseStyleComponent("div", array(
                                 "css" => "r-script form-control mb-3",
+                            )),
+                            new BaseStyleComponent("dataConfigBuilder", array(
+                                "value" => isset($this->script['data_config']) ? $this->script['data_config'] : '',
+                                "name" => 'data_config'                                
                             )),
                             new BaseStyleComponent("textarea", array(
                                 "label" => "Test variables",
                                 "name" => "test_variables",
-                                "css" => "r-script-test-variables",
+                                "css" => "r-script-test-variables mt-2",
                                 "type_input" => "json",
                                 "value" => isset($this->script['test_variables']) ? $this->script['test_variables'] : '',
                                 "placeholder" => "Write test variables in JSON structure",

@@ -163,10 +163,12 @@ class ModuleRModel extends BaseModel
      * Json structure for test variables
      * @param boolean $async
      * Is the script async
+     * @param string $data_config
+     * Json structure for data config
      * @return int
      *  The id of the new survey or false if the process failed.
      */
-    public function update_script($sid, $name, $script, $test_variables, $async)
+    public function update_script($sid, $name, $script, $test_variables, $async, $data_config)
     {
         try {
             $this->db->begin_transaction();
@@ -174,7 +176,8 @@ class ModuleRModel extends BaseModel
                 "name" => $name,
                 "script" => $script,
                 "test_variables" => $test_variables,
-                "async" => (int)$async
+                "async" => (int)$async,
+                "data_config" => $data_config
             ), array('id' => $sid));
             $this->transaction->add_transaction(
                 transactionTypes_update,
@@ -237,7 +240,7 @@ class ModuleRModel extends BaseModel
      * @return object
      * Return the result, object with all variables and their values
      */
-    public function execute_r_script($script, $variables = array())
+    public function execute_r_script($script, $data_config, $variables = array())
     {
         try {
             // Connect to the Rserve server
@@ -248,7 +251,8 @@ class ModuleRModel extends BaseModel
                     "data" => "Error in the variables"
                 );
             }
-            $r_script = $this->db->replace_calced_values($script, $variables);
+            $data_config_values = $data_config ? $this->fetch_data($data_config) : [];
+            $r_script = $this->db->replace_calced_values($script, array_merge($data_config_values, $variables));
             $r_script = $this->add_result_check($r_script);
             $r_script = str_replace("\r\n", "\n", $r_script); //RServe accepts only these new lines
             $result = $connection->evalString($r_script);
@@ -282,11 +286,13 @@ class ModuleRModel extends BaseModel
         $connection = $this->get_rserve_connection();
         if (!is_array($variables)) {
             return array(
+                "data" => "Error in the variables",
                 "result" => false,
-                "data" => "Error in the variables"
             );
         }
-        $r_script = $this->db->replace_calced_values($script, $variables);
+        $data_config = json_decode($r_script_info['data_config'], true);
+        $data_config_values = $data_config ? $this->fetch_data($data_config) : [];
+        $r_script = $this->db->replace_calced_values($script, array_merge($data_config_values, $variables));
         $r_script = $this->add_result_check($r_script);
         $r_script = $this->add_async_callback_request($r_script, $r_script_info['generated_id'], $args['user']['id_users'], $args['task_info']['id']);
         $r_script = str_replace("\r\n", "\n", $r_script); //RServe accepts only these new lines

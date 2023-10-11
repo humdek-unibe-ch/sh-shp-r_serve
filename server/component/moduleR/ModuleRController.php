@@ -37,7 +37,7 @@ class ModuleRController extends BaseController
             }
         } else if ($mode === UPDATE && $sid > 0 && isset($_POST['name']) && isset($_POST['script']) && isset($_POST['test_variables'])) {
             $async = isset($_POST['async']) ? $_POST['async'] : 0;
-            $res = $this->model->update_script($sid, $_POST['name'], $_POST['script'], $_POST['test_variables'], $async);            
+            $res = $this->model->update_script($sid, $_POST['name'], $_POST['script'], $_POST['test_variables'], $async, $_POST['data_config']);            
             if ($res) {
                 $this->success = true;
                 $this->success_msgs[] = "[" . date("H:i:s") . "] Successfully updated script: " . $_POST['name'];
@@ -53,7 +53,11 @@ class ModuleRController extends BaseController
             if ($_POST['test_variables'] != '') {
                 $test_variables = json_decode($_POST['test_variables'], true);
             }
-            $result = $this->model->execute_r_script($_POST['script'], $test_variables);
+            $data_config = array();
+            if ($_POST['data_config'] != '') {
+                $data_config = json_decode($_POST['data_config'], true);
+            }
+            $result = $this->model->execute_r_script($_POST['script'], $data_config, $test_variables);
             header("Content-Type: application/json");
             echo json_encode($result);
             uopz_allow_exit(true);
