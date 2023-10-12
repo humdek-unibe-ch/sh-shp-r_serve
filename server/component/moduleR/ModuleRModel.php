@@ -253,6 +253,7 @@ class ModuleRModel extends BaseModel
                     "data" => "Error in the variables"
                 );
             }
+            $data_config = $this->db->replace_calced_values($data_config, $variables); // take some variables used in data_config
             $data_config_values = $data_config ? $this->fetch_data($data_config, $id_users) : [];
             $r_script = $this->db->replace_calced_values($script, array_merge($data_config_values, $variables));
             $r_script = $this->add_result_check($r_script);
@@ -266,7 +267,8 @@ class ModuleRModel extends BaseModel
         } catch (Rserve_Exception  $e) {
             return array(
                 "result" => false,
-                "data" => $e->getMessage()
+                "data" => $e->getMessage(),
+                "script" => $r_script
             );
         }
     }
@@ -291,8 +293,9 @@ class ModuleRModel extends BaseModel
                 "data" => "Error in the variables",
                 "result" => false,
             );
-        }
+        }        
         $data_config = $r_script_info['data_config'] ? json_decode($r_script_info['data_config'], true) : false;
+        $data_config = $this->db->replace_calced_values($data_config, $variables); // take some variables used in data_config
         $data_config_values = $data_config ? $this->fetch_data($data_config, $args['user']['id_users']) : [];
         $r_script = $this->db->replace_calced_values($script, array_merge($data_config_values, $variables));
         $r_script = $this->add_result_check($r_script);
@@ -320,6 +323,13 @@ class ModuleRModel extends BaseModel
     {
         if ($result['result']) {
             $result['data']['id_users'] = $id_users;
+            foreach ($result['data'] as $key => $value) {
+                // Check if the property is an array
+                if (is_array($value)) {
+                    // Convert the array to a JSON-encoded string
+                    $result['data'][$key] = json_encode($value);
+                }
+            }
             $save_result = $this->user_input->save_external_data(transactionBy_by_r_script, $r_generated_id, $result['data']);
             if ($save_result) {
                 $this->transaction->add_transaction(
