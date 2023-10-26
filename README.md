@@ -62,6 +62,16 @@ WantedBy=default.target
 
 # reload the daemon sudo systemctl daemon-reload
 
+# Install packages - use this script. The installation on Linux takes time because everything is compiled. This will happen only the first time when is installed
+`install_if_missing <- function(package_name) {
+  if (!require(package_name, character.only = TRUE, quietly = TRUE)) {
+    install.packages(package_name, dependencies = TRUE, repos = "https://cran.r-project.org")
+    library(package_name, character.only = TRUE)
+  }
+}
+
+install_if_missing("tidyverse")`
+
 
 
 
