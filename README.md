@@ -18,6 +18,7 @@ This is a SelfHelpPlugin that is used for [Rserve](https://www.rforge.net/Rserve
 # R installation
  - sudo apt-get install r-base
  - sudo apt-get install r-base-dev # required for installing packages
+ - for `tidyverse`: `sudo apt-get -y install r-cran-tidyverse`
 
 # Rserve Installation
 # install Rserve
