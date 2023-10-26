@@ -15,6 +15,9 @@ This is a SelfHelpPlugin that is used for [Rserve](https://www.rforge.net/Rserve
  - SelfHelp v6.3.0+
  - Rserve -server
 
+# R installation
+ - sudo apt-get install r-base
+ - sudo apt-get install r-base-dev # required for installing packages
 
 # Rserve Installation
 # install Rserve
