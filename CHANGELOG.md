@@ -1,4 +1,4 @@
-# v1.1.0 - Requires SelfHelp v6.4.10 (Unpublished)
+# v1.1.0 - Requires SelfHelp v6.4.10
  - add `data_config` to the script, the data from the config is loaded when the script is executed
 
 # v1.0.1
