@@ -79,11 +79,13 @@ class ModuleRModel extends BaseModel
     private function get_rserve_connection()
     {
         return new Connection(
-            $this->rserve_settings['rserve_host'], 
-            $this->rserve_settings['rserve_port'],  
+            $this->rserve_settings['rserve_host'],
+            $this->rserve_settings['rserve_port'],
             array(
-                'username'=>$this->rserve_settings['rserve_user_name'],
-                'password'=>$this->rserve_settings['rserve_password']));
+                'username' => $this->rserve_settings['rserve_user_name'],
+                'password' => $this->rserve_settings['rserve_password']
+            )
+        );
     }
 
     /**
@@ -247,11 +249,17 @@ class ModuleRModel extends BaseModel
         try {
             // Connect to the Rserve server
             $connection = $this->get_rserve_connection();
-            if (!is_array($variables)) {
+            if (!is_array($variables) && $variables != null) {
                 return array(
                     "result" => false,
                     "data" => "Error in the variables"
                 );
+            }
+            if ($variables == null) {
+                $variables = array();
+            }
+            if ($data_config == null) {
+                $data_config = array();
             }
             $data_config = $this->db->replace_calced_values($data_config, $variables); // take some variables used in data_config
             $data_config_values = $data_config ? $this->fetch_data($data_config, $id_users) : [];
@@ -293,7 +301,7 @@ class ModuleRModel extends BaseModel
                 "data" => "Error in the variables",
                 "result" => false,
             );
-        }        
+        }
         $data_config = $r_script_info['data_config'] ? json_decode($r_script_info['data_config'], true) : false;
         $data_config = $this->db->replace_calced_values($data_config, $variables); // take some variables used in data_config
         $data_config_values = $data_config ? $this->fetch_data($data_config, $args['user']['id_users']) : [];

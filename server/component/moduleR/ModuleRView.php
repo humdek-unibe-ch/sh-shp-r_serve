@@ -145,7 +145,7 @@ class ModuleRView extends BaseView
                                 "label" => "Test variables",
                                 "name" => "test_variables",
                                 "css" => "r-script-test-variables mt-2",
-                                "type_input" => "json",
+                                "type_input" => "textarea",
                                 "value" => isset($this->script['test_variables']) ? $this->script['test_variables'] : '',
                                 "placeholder" => "Write test variables in JSON structure",
                             ))
