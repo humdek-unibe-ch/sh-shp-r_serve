@@ -75,6 +75,7 @@ class RserveHooks extends BaseHooks
     private function execute_r_script($args)
     {
         // Connect to the Rserve server
+        echo "R script";
         $r_script_info = $this->moduleR->get_script($args['task_info']['config']['r_script']);
         if ($r_script_info) {
             // return true;
@@ -107,6 +108,7 @@ class RserveHooks extends BaseHooks
      */
     public function execute_r_task($args)
     {
+        echo 'execute_r_task';
         if ($args['task_info']['config']['type'] == ACTION_JOB_TYPE_R_SCRIPT) {
             return $this->execute_r_script($args);
         } else {

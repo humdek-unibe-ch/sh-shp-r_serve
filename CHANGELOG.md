@@ -1,3 +1,6 @@
+# v1.2.0
+ - remove hook `field-rserve_panel-view`
+
 # v1.1.1
  - bugfix the `textarea` for test variables
 
