@@ -1,3 +1,7 @@
+# v1.2.1
+### New Features
+ - load plugin version using `BaseHook` class
+
 # v1.2.0
  - remove hook `field-rserve_panel-view`
 

@@ -231,5 +231,13 @@ class RserveHooks extends BaseHooks
         }
         return $res;
     }
+
+    /**
+     * Get the plugin version
+     */
+    public function get_plugin_db_version($plugin_name = 'rserve')
+    {
+        return parent::get_plugin_db_version($plugin_name);
+    }
 }
 ?>
