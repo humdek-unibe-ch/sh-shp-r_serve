@@ -189,7 +189,7 @@ class ModuleRView extends BaseView
             if (DEBUG) {
                 $local = array(__DIR__ . "/js/rserve.js");
             } else {
-                $local = array(__DIR__ . "/../../../../rserve/js/ext/rserve.min.js?v=" . rtrim(shell_exec("git describe --tags")));
+                $local = array(__DIR__ . "/../../../js/ext/rserve.min.js?v=" . rtrim(shell_exec("git describe --tags")));
             }
         }
         return parent::get_js_includes($local);
@@ -208,7 +208,7 @@ class ModuleRView extends BaseView
             if (DEBUG) {
                 $local = array(__DIR__ . "/css/rserve.css");
             } else {
-                $local = array(__DIR__ . "/../../../../rserve/css/ext/rserve.min.css?v=" . rtrim(shell_exec("git describe --tags")));
+                $local = array(__DIR__ . "/../../../css/ext/rserve.min.css?v=" . rtrim(shell_exec("git describe --tags")));
             }
         }
         return parent::get_css_includes($local);
