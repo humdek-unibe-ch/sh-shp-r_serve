@@ -1,3 +1,7 @@
+# v1.2.3
+### Bugfix
+ - remove `echo` debuting
+
 # v1.2.2
 ### Bugfix
  - fix loading path for minified files 
