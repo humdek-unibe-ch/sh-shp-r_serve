@@ -1,3 +1,7 @@
+# v1.2.4 - Requires SelfHelp v7.0.0+ (Not released)
+### New Features
+ - - add computability with `user_input` refactoring from SelfHelp v7.0.0 
+
 # v1.2.3
 ### Bugfix
  - remove `echo` debuting

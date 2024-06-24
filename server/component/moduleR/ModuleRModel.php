@@ -338,7 +338,7 @@ class ModuleRModel extends BaseModel
                     $result['data'][$key] = json_encode($value);
                 }
             }
-            $save_result = $this->user_input->save_external_data(transactionBy_by_r_script, $r_generated_id, $result['data']);
+            $save_result = $this->user_input->save_data(transactionBy_by_r_script, $r_generated_id, $result['data']);
             if ($save_result) {
                 $this->transaction->add_transaction(
                     transactionTypes_insert,
