@@ -30,7 +30,7 @@ class RserveHooks extends BaseHooks
     public function __construct($services, $params = array())
     {
         parent::__construct($services, $params);
-        $this->moduleR = new ModuleRModel($this->services);
+        $this->moduleR = new ModuleRModel($this->services, -1);
     }
 
     /* Private Methods *********************************************************/
@@ -75,7 +75,7 @@ class RserveHooks extends BaseHooks
     private function execute_r_script($args)
     {
         // Connect to the Rserve server
-        $r_script_info = $this->moduleR->get_script($args['task_info']['config']['r_script']);
+        $r_script_info = $this->moduleR->fetch_script($args['task_info']['config']['r_script']);
         if ($r_script_info) {
             // return true;
             $r_script = $r_script_info['script'];

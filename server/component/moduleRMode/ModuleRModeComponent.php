@@ -30,7 +30,7 @@ class ModuleRModeComponent extends BaseComponent
     {
         $sid = isset($params['sid']) ? intval($params['sid']) : null;
         $mode = isset($params['mode']) ? $params['mode'] : null;
-        $model = new ModuleRModel($services);
+        $model = new ModuleRModel($services, $sid);
         $controller = new ModuleRController($model, $mode, $sid);
         $view = new ModuleRView($model, $controller, $mode, $sid);
         parent::__construct($model, $view, $controller);

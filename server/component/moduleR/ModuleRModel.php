@@ -46,6 +46,11 @@ class ModuleRModel extends BaseModel
      */
     private $rserve_settings;
 
+    /**
+     * The r script row
+     */
+    private $r_script;
+
     /* Constructors ***********************************************************/
 
     /**
@@ -55,10 +60,11 @@ class ModuleRModel extends BaseModel
      *  An associative array holding the different available services. See the
      *  class definition BasePage for a list of all services.
      */
-    public function __construct($services)
+    public function __construct($services, $sid)
     {
         parent::__construct($services);
         $this->rserve_settings = $this->db->fetch_page_info(SH_MODULE_R);
+        $this->r_script = $this->fetch_script($sid);    
     }
 
     /**
@@ -134,6 +140,7 @@ class ModuleRModel extends BaseModel
         try {
             $this->db->begin_transaction();
             $generated_id = "R_SCRIPT_" . substr(uniqid(), -11);
+            $this->set_dataTables_displayName($generated_id, $generated_id);
             $sid = $this->db->insert(RSERVE_TABLE_R_SCRIPTS, array(
                 "generated_id" => $generated_id,
                 "name" => $generated_id
@@ -174,6 +181,7 @@ class ModuleRModel extends BaseModel
     {
         try {
             $this->db->begin_transaction();
+            $this->set_dataTables_displayName($this->r_script['generated_id'], $name);
             $this->db->update_by_ids(RSERVE_TABLE_R_SCRIPTS, array(
                 "name" => $name,
                 "script" => $script,
@@ -198,17 +206,26 @@ class ModuleRModel extends BaseModel
 
     /**
      * Get script
-     * @param int $sid
+     * @param int $sid     
      * Script id
-     * @param return object
+     * @return array
      * Return the script row
      */
-    public function get_script($sid)
+    public function fetch_script($sid)
     {
         $sql = "SELECT *
                 FROM r_scripts
                 WHERE id = :id";
         return $this->db->query_db_first($sql, array(':id' => $sid));
+    }
+
+    /**
+     * R script getter
+     * @return array
+     * Return the r script record;
+     */
+    public function get_script() {
+        return $this->r_script;
     }
 
     /**
