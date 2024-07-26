@@ -1,4 +1,4 @@
-# v1.2.4 - Requires SelfHelp v7.0.0+ (Not released)
+# v1.2.4 - Requires SelfHelp v7.0.0+
 ### New Features
  - add computability with `user_input` refactoring from SelfHelp v7.0.0 
  - set `displayName` to the dataTable when `r_script` is created or updated
