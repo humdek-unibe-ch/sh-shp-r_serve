@@ -2,6 +2,8 @@
 ### New Features
  - add computability with `user_input` refactoring from SelfHelp v7.0.0 
  - set `displayName` to the dataTable when `r_script` is created or updated
+### Bugfix
+ - load R script only if one is selected
 
 # v1.2.3
 ### Bugfix

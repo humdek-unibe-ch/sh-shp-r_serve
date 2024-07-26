@@ -64,7 +64,9 @@ class ModuleRModel extends BaseModel
     {
         parent::__construct($services);
         $this->rserve_settings = $this->db->fetch_page_info(SH_MODULE_R);
-        $this->r_script = $this->fetch_script($sid);    
+        if ($sid > 0) {
+            $this->r_script = $this->fetch_script($sid);
+        }
     }
 
     /**
@@ -224,7 +226,8 @@ class ModuleRModel extends BaseModel
      * @return array
      * Return the r script record;
      */
-    public function get_script() {
+    public function get_script()
+    {
         return $this->r_script;
     }
 
